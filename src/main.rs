@@ -1,22 +1,18 @@
 extern crate clap;
 use clap::{crate_version, App, Arg};
-use std::error::Error;
+use std::fs;
 use std::fs::File;
-// use std::io;
-use tera::Tera;
+use tera::{Context, Tera};
 
-
-fn example(file_path: &str) -> Result<(Vec<csv::StringRecord>), Box<dyn Error>> {
+fn load_table(file_path: &str) -> Result<Vec<Vec<String>>, csv::Error> {
     let file = File::open(file_path)?;
     let mut rdr = csv::Reader::from_reader(file);
-    let mut v: Vec<csv::StringRecord> = Vec::new();
-    for result in rdr.records() {
-        if let Ok(r) = result {
-            println!("{:?}", r);
-            v.push(r);
-        }
+    let mut rows: Vec<Vec<String>> = Vec::new();
+    for result in rdr.deserialize() {
+        let row: Vec<String> = result?;
+        rows.push(row);
     }
-    Ok(v)
+    Ok(rows)
 }
 
 fn main() {
@@ -27,28 +23,24 @@ fn main() {
         .arg(
             Arg::with_name("INPUT")
                 .help("Sets the input file to use")
-                .required(true)
-                .index(1),
+                .required(true),
+        )
+        .arg(
+            Arg::with_name("TEMPLATE")
+                .help("Sets the template file to use")
+                .required(true),
         )
         .get_matches();
 
-    // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
-    // required we could have used an 'if let' to conditionally get the value)
     let input = matches.value_of("INPUT").unwrap();
-    println!("Using input file: {}", input);
+    let template_filename = matches.value_of("TEMPLATE").unwrap();
+    let csv_contents = load_table(input).unwrap();
+    let template_content = fs::read_to_string(template_filename).unwrap();
 
-    // let tera = match Tera::new("../table.html") {
-    //     Ok(t) => t,
-    //     Err(e) => {
-    //         println!("Parsing error(s): {}", e);
-    //         ::std::process::exit(1);
-    //     }
-    // };
-
-    if let Err(err) = example(input) {
-        println!("error running example: {}", err);
-        std::process::exit(1);
-    }
+    let mut context = Context::new();
+    context.insert("rows", &csv_contents);
+    let html = Tera::one_off(&template_content, &context, true).unwrap();
+    println!("{}", html);
 
     std::process::exit(0)
 }

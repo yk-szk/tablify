@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 clap = "2.23.3"
 csv = "1.1"
+serde = { version = "1", features = ["derive"] }
 
 [dependencies.tera]
 version = "1"
