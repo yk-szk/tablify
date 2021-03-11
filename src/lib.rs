@@ -37,7 +37,7 @@ pub fn load_xlsx(a: &Vec<u8>) -> Result<Vec<Vec<String>>, calamine::Error> {
     let buf = BufReader::new(cursor);
     let mut workbook = Xlsx::new(buf)?;
     let mut rows: Vec<Vec<String>> = Vec::new();
-    let sheet_name = workbook.sheet_names()[0].clone(); // TODO: is clone() avoidable?
+    let sheet_name = workbook.sheet_names()[0].to_owned();
     let range = workbook
         .worksheet_range(&sheet_name)
         .ok_or(calamine::Error::Msg("Cannot find a sheet."))??;
