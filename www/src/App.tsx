@@ -74,6 +74,9 @@ function App() {
 
   return (
     <div className="App">
+      <header>
+        <h1>Tablify</h1>
+      </header>
       <div>
         <h2>template</h2>
         <textarea value={template} onChange={onTemplateChange} name="template"></textarea >
