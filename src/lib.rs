@@ -3,10 +3,17 @@ use encoding_rs;
 use std::error::Error;
 use std::io::{BufReader, Cursor};
 use tera::{Context, Tera};
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub fn render(template: &str, raw_content: &[u8], filename: &str) -> Result<String, JsValue> {
+    let html = tablify(template, raw_content, filename);
+    html.map_err(|e| JsValue::from(e.to_string()))
+}
 
 pub fn tablify(
     template: &str,
-    raw_content: &Vec<u8>,
+    raw_content: &[u8],
     filename: &str,
 ) -> Result<String, Box<dyn Error>> {
     let table_data = match std::path::Path::new(filename)
@@ -20,7 +27,7 @@ pub fn tablify(
     render_table(template, table_data?).map_err(|e| e.into())
 }
 
-pub fn load_csv(a: &Vec<u8>) -> Result<Vec<Vec<String>>, csv::Error> {
+pub fn load_csv(a: &[u8]) -> Result<Vec<Vec<String>>, csv::Error> {
     let (csv_content, _, _) = encoding_rs::SHIFT_JIS.decode(&a);
     let csv_content = csv_content.into_owned();
     let mut rdr = csv::Reader::from_reader(csv_content.as_bytes());
@@ -32,7 +39,7 @@ pub fn load_csv(a: &Vec<u8>) -> Result<Vec<Vec<String>>, csv::Error> {
     Ok(rows)
 }
 
-pub fn load_xlsx(a: &Vec<u8>) -> Result<Vec<Vec<String>>, calamine::Error> {
+pub fn load_xlsx(a: &[u8]) -> Result<Vec<Vec<String>>, calamine::Error> {
     let cursor = Cursor::new(a);
     let buf = BufReader::new(cursor);
     let mut workbook = Xlsx::new(buf)?;
