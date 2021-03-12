@@ -55,9 +55,9 @@ function App() {
           const buf = reader.result as ArrayBuffer;
           try {
             const table_template = "{%- for row in rows %}<tr>{%- for e in row %}<td>{{e}}</td>{%- endfor %}</tr>{%- endfor %}";
-            const rendered = wasm.render(table_template, new Uint8Array(buf), files[0].name);
+            const rendered = wasm.render(table_template, new Uint8Array(buf), files[0].name, false);
             setTableRows(rendered);
-            const html = wasm.render(template, new Uint8Array(buf), files[0].name);
+            const html = wasm.render(template, new Uint8Array(buf), files[0].name, false);
             console.log(html);
             setOutput(html);
           } catch (error) {

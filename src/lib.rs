@@ -6,8 +6,8 @@ use tera::{Context, Tera};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub fn render(template: &str, raw_content: &[u8], filename: &str) -> Result<String, JsValue> {
-    let html = tablify(template, raw_content, filename);
+pub fn render(template: &str, raw_content: &[u8], filename: &str, autoescape: bool) -> Result<String, JsValue> {
+    let html = tablify(template, raw_content, filename, autoescape);
     html.map_err(|e| JsValue::from(e.to_string()))
 }
 
@@ -15,6 +15,7 @@ pub fn tablify(
     template: &str,
     raw_content: &[u8],
     filename: &str,
+    autoescape: bool,
 ) -> Result<String, Box<dyn Error>> {
     let table_data = match std::path::Path::new(filename)
         .extension()
@@ -24,7 +25,7 @@ pub fn tablify(
         Some("xlsx") => Ok(load_xlsx(&raw_content)?),
         _ => Err("Invalid file extension"),
     };
-    render_table(template, table_data?).map_err(|e| e.into())
+    render_table(template, table_data?, autoescape).map_err(|e| e.into())
 }
 
 pub fn load_csv(a: &[u8]) -> Result<Vec<Vec<String>>, csv::Error> {
@@ -56,8 +57,8 @@ pub fn load_xlsx(a: &[u8]) -> Result<Vec<Vec<String>>, calamine::Error> {
     Ok(rows)
 }
 
-pub fn render_table(template_content: &str, rows: Vec<Vec<String>>) -> Result<String, tera::Error> {
+pub fn render_table(template_content: &str, rows: Vec<Vec<String>>, autoescape: bool) -> Result<String, tera::Error> {
     let mut context = Context::new();
     context.insert("rows", &rows);
-    Tera::one_off(&template_content, &context, true)
+    Tera::one_off(&template_content, &context, autoescape)
 }
