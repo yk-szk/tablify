@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/tablify/static/css/main.277fa738.chunk.css",
+    "main.js": "/tablify/static/js/main.1032489c.chunk.js",
+    "main.js.map": "/tablify/static/js/main.1032489c.chunk.js.map",
+    "runtime-main.js": "/tablify/static/js/runtime-main.4fc689f3.js",
+    "runtime-main.js.map": "/tablify/static/js/runtime-main.4fc689f3.js.map",
+    "static/js/2.1eaf2cfc.chunk.js": "/tablify/static/js/2.1eaf2cfc.chunk.js",
+    "static/js/2.1eaf2cfc.chunk.js.map": "/tablify/static/js/2.1eaf2cfc.chunk.js.map",
+    "static/js/3.e073aa22.chunk.js": "/tablify/static/js/3.e073aa22.chunk.js",
+    "60c94fd781a3b47fbecb.module.wasm": "/tablify/60c94fd781a3b47fbecb.module.wasm",
+    "static/js/3.e073aa22.chunk.js.map": "/tablify/static/js/3.e073aa22.chunk.js.map",
+    "index.html": "/tablify/index.html",
+    "static/css/main.277fa738.chunk.css.map": "/tablify/static/css/main.277fa738.chunk.css.map",
+    "static/js/2.1eaf2cfc.chunk.js.LICENSE.txt": "/tablify/static/js/2.1eaf2cfc.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.4fc689f3.js",
+    "static/js/2.1eaf2cfc.chunk.js",
+    "static/css/main.277fa738.chunk.css",
+    "static/js/main.1032489c.chunk.js"
+  ]
+}
