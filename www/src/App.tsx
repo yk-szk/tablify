@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactHtmlParser from 'react-html-parser';
 import './App.css';
+import { toClipboard } from './Utils';
 
 type ModuleType = typeof import('tablify');
 const default_template = `<style>
@@ -94,6 +95,9 @@ function App() {
       <div>
         <h2>output</h2>
         <textarea id="output" value={output} readOnly></textarea>
+        <button title="Copy output to the clipboard"
+          disabled={output === ''}
+          onClick={(event) => toClipboard(output)}>Copy</button>
       </div>
     </div>
   );
