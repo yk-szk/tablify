@@ -3,6 +3,11 @@ Turn a tablar data into a table element.
 
 ## Development
 
+### Setup
+```sh
+cargo install wasm-pack
+```
+
 ### Rust
 ```sh
 cargo build
@@ -12,5 +17,5 @@ cargo build
 ```sh
 wasm-pack build
 cd www
-yarn start
+yarn build
 ```
