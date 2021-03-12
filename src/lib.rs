@@ -3,10 +3,17 @@ use encoding_rs;
 use std::error::Error;
 use std::io::{BufReader, Cursor};
 use tera::{Context, Tera};
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
-pub fn render(template: &str, raw_content: &[u8], filename: &str, autoescape: bool) -> Result<String, JsValue> {
+pub fn render(
+    template: &str,
+    raw_content: &[u8],
+    filename: &str,
+    autoescape: bool,
+) -> Result<String, JsValue> {
     let html = tablify(template, raw_content, filename, autoescape);
     html.map_err(|e| JsValue::from(e.to_string()))
 }
@@ -57,7 +64,11 @@ pub fn load_xlsx(a: &[u8]) -> Result<Vec<Vec<String>>, calamine::Error> {
     Ok(rows)
 }
 
-pub fn render_table(template_content: &str, rows: Vec<Vec<String>>, autoescape: bool) -> Result<String, tera::Error> {
+pub fn render_table(
+    template_content: &str,
+    rows: Vec<Vec<String>>,
+    autoescape: bool,
+) -> Result<String, tera::Error> {
     let mut context = Context::new();
     context.insert("rows", &rows);
     Tera::one_off(&template_content, &context, autoescape)
