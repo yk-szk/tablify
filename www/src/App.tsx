@@ -79,13 +79,15 @@ function App() {
         <h1>Tablify</h1>
       </header>
       <div>
-        <h2>template</h2>
-        <textarea value={template} onChange={onTemplateChange} name="template"></textarea >
-        <h2>file</h2>
+        <h2>Template</h2>
+        <p className="usage">Set Jinja2/Django template</p>
+        <textarea className="code" rows={5} value={template} onChange={onTemplateChange} name="template"></textarea >
+        <h2>Tabular data</h2>
+        <p className="usage">Choose tabular file (.csv or .xlsx)</p>
         <input type="file" accept=".xlsx,.csv" onChange={(e: any) => loadFile(e.target.files)}></input>
       </div>
       <div>
-        <h2>input contents</h2>
+        <h2>Input contents</h2>
         <table>
           <tbody>
             {ReactHtmlParser(tableRows)}
@@ -93,8 +95,8 @@ function App() {
         </table>
       </div>
       <div>
-        <h2>output</h2>
-        <textarea id="output" value={output} readOnly></textarea>
+        <h2>Output</h2>
+        <textarea className="code" rows={5} id="output" value={output} readOnly></textarea>
         <button title="Copy output to the clipboard"
           disabled={output === ''}
           onClick={(event) => toClipboard(output)}>Copy</button>

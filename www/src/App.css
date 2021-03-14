@@ -4,6 +4,10 @@
   padding-bottom: 2em;
 }
 
+h2 {
+  border-bottom: solid 2px lightgray;
+}
+
 div {
   margin: 0;
   padding: 0;
@@ -27,10 +31,8 @@ tr:nth-child(odd) {
 textarea {
   margin: auto;
   width: 100%;
-  min-height: 5ex;
-  font-family: monoscape;
 }
 
-#output {
-  min-height: 20ex;
+.usage {
+  font-size: .8em;
 }

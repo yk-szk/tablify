@@ -1,5 +1,5 @@
 # tablify
-Turn a tablar data into a table element.
+Turn a tabular data into a table element.
 
 ## Development
 
