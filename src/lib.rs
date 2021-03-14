@@ -104,4 +104,17 @@ mod tests {
         let loaded_rows = load_csv(csv_content.as_bytes()).unwrap();
         assert_eq!(rows, loaded_rows);
     }
+    #[test]
+    fn test_tablify() {
+        let template = "{% for row in rows %}{{ row | join(sep=\",\")}}\n{% endfor %}";
+        let rows = vec![vec!["r1c1", "r1c2"], vec!["r2c1", "r2c2"]];
+        let csv_content = rows
+            .iter()
+            .map(|row| row.join(","))
+            .collect::<Vec<_>>()
+            .join("\n");
+        let table = tablify(template, csv_content.as_bytes(), "fn.csv", false).unwrap();
+        println!("{}", table);
+        assert_eq!(table, csv_content + "\n");
+    }
 }
