@@ -18,6 +18,14 @@ pub fn render(
     html.map_err(|e| JsValue::from(e.to_string()))
 }
 
+/// Load tabular data and render html using the contents and the template
+///
+/// # Arguments
+///
+/// * `template`: Template
+/// * `raw_content`: Bytes of input tabular data
+/// * `filename`: Only used to determine file type (.csv or .xlsx)
+/// * `autoescape`: Enable autoescaping in html rendering
 pub fn tablify(
     template: &str,
     raw_content: &[u8],
@@ -35,6 +43,7 @@ pub fn tablify(
     render_table(template, table_data?, autoescape).map_err(|e| e.into())
 }
 
+/// Load CSV file
 pub fn load_csv(a: &[u8]) -> Result<Vec<Vec<String>>, csv::Error> {
     let (csv_content, _, _) = encoding_rs::SHIFT_JIS.decode(&a);
     let csv_content = csv_content.into_owned();
@@ -47,6 +56,7 @@ pub fn load_csv(a: &[u8]) -> Result<Vec<Vec<String>>, csv::Error> {
     Ok(rows)
 }
 
+/// Load XLSX file
 pub fn load_xlsx(a: &[u8]) -> Result<Vec<Vec<String>>, calamine::Error> {
     let cursor = Cursor::new(a);
     let buf = BufReader::new(cursor);
@@ -64,6 +74,7 @@ pub fn load_xlsx(a: &[u8]) -> Result<Vec<Vec<String>>, calamine::Error> {
     Ok(rows)
 }
 
+/// Render rows using the given template.
 pub fn render_table(
     template_content: &str,
     rows: Vec<Vec<String>>,
@@ -72,4 +83,21 @@ pub fn render_table(
     let mut context = Context::new();
     context.insert("rows", &rows);
     Tera::one_off(&template_content, &context, autoescape)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_load_csv() {
+        let rows = vec![vec!["r1c1", "r1c2"], vec!["r2c1", "r2c2"]];
+        let csv_content = rows
+            .iter()
+            .map(|row| row.join(","))
+            .collect::<Vec<_>>()
+            .join("\n");
+        let loaded_rows = load_csv(csv_content.as_bytes()).unwrap();
+        assert_eq!(rows.len(), loaded_rows.len());
+    }
 }

@@ -7,15 +7,15 @@ fn main() {
     let matches = App::new("tablify")
         .version(crate_version!())
         .author("Yuki Suzuki <y-suzuki@radiol.med.osaka-u.ac.jp>")
-        .about("Load tabular data and render a html file.")
+        .about("Load tabular data and turn it into a html file.")
         .arg(
             Arg::with_name("INPUT")
-                .help("Sets the input csv file to use")
+                .help("Sets the input csv file")
                 .required(true),
         )
         .arg(
             Arg::with_name("TEMPLATE")
-                .help("Sets the template file to use")
+                .help("Sets the template file")
                 .required(true),
         )
         .arg(
