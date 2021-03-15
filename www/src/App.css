@@ -36,3 +36,9 @@ textarea {
 .usage {
   font-size: .8em;
 }
+
+p.error {
+  padding: 1em;
+  background: lavenderblush;
+  border: solid 2px pink;
+}

@@ -24,7 +24,7 @@ tr:nth-child(odd) {
 
 function App() {
   const [wasm, setWasm] = useState<ModuleType | null>(null);
-  const [tableRows, setTableRows] = useState("");
+  const [inputContent, setInputContent] = useState("");
   const [template, setTemplate] = useState(default_template);
   const [output, setOutput] = useState("");
   useEffect(() => {
@@ -57,13 +57,15 @@ function App() {
         if (wasm !== null) {
           const buf = reader.result as ArrayBuffer;
           try {
-            const table_template = "{%- for row in rows %}<tr>{%- for e in row %}<td>{{e}}</td>{%- endfor %}</tr>{%- endfor %}";
+            const table_template = "<table><tbody>{%- for row in rows %}<tr>{%- for e in row %}<td>{{e}}</td>{%- endfor %}</tr>{%- endfor %}</tbody></table>";
             const rendered = wasm.render(table_template, new Uint8Array(buf), files[0].name, false);
-            setTableRows(rendered);
+            setInputContent(rendered);
             const html = wasm.render(template, new Uint8Array(buf), files[0].name, false);
             setOutput(html);
           } catch (error) {
             console.error(error);
+            setInputContent('<p class="error">' + error + '</p>');
+            setOutput("")
           }
         }
       }
@@ -96,11 +98,7 @@ function App() {
       </div>
       <div>
         <h2>Input contents</h2>
-        <table>
-          <tbody>
-            {ReactHtmlParser(tableRows)}
-          </tbody>
-        </table>
+        {ReactHtmlParser(inputContent)}
       </div>
       <div>
         <h2>Output</h2>
