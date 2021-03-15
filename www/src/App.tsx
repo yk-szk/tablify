@@ -61,7 +61,6 @@ function App() {
             const rendered = wasm.render(table_template, new Uint8Array(buf), files[0].name, false);
             setTableRows(rendered);
             const html = wasm.render(template, new Uint8Array(buf), files[0].name, false);
-            console.log(html);
             setOutput(html);
           } catch (error) {
             console.error(error);

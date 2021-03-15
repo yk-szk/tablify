@@ -1,6 +1,10 @@
 # tablify
 Turn a tabular data into a table element.
 
+## ARCHITECTURE
+- Rust: Core functionality -> wasm + CLI
+- React: Web app
+
 ## Development
 
 ### Setup
