@@ -1,34 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import ReactHtmlParser from 'react-html-parser';
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import './App.css';
-import { toClipboard } from './Utils';
+import { toClipboard, downloadAsHtml } from './Utils';
 
 type ModuleType = typeof import('tablify');
-const default_template = `<style>
-    p {
-        text-indent: 1em;
-        padding: 0;
-        margin-bottom: 0 !important;
-    }
-
-    address {
-        font-style: normal;
-        margin: 1em 0 !important;
-    }
+let default_template = `<style>
+tr:nth-child(odd) {
+    background: #f7f7ff;
+}
 </style>
 <table>
-    <tbody>
-        {%- for row in rows %}
-        <tr>
-            <th align="center" width="30%">
-                {{row[0]}}
-            </th>
-            <td width="70%">
-                {{row[1]}}
-            </td>
-        </tr>
+<tbody>
+    {%- for row in rows %}
+    <tr>
+        {%- for e in row %}
+        <td>{{e}}</td>
         {%- endfor %}
-    </tbody>
+    </tr>
+    {%- endfor %}
+</tbody>
 </table>`;
 
 function App() {
@@ -36,6 +27,17 @@ function App() {
   const [tableRows, setTableRows] = useState("");
   const [template, setTemplate] = useState(default_template);
   const [output, setOutput] = useState("");
+  useEffect(() => {
+    const param = new URL(window.location.href).searchParams;
+    if (param.has("t")) {
+      console.log("Set template from the URL")
+      const decoded = decompressFromEncodedURIComponent(param.get("t") as string);
+      if (decoded !== null) {
+        default_template = decoded;
+        setTemplate(default_template);
+      }
+    }
+  }, [])
   useEffect(() => {
     try {
       import('tablify').then((module: ModuleType) => {
@@ -71,6 +73,13 @@ function App() {
 
   function onTemplateChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
     setTemplate(event.target.value);
+    if (event.target.value.length > 0) {
+      const compressed = compressToEncodedURIComponent(event.target.value);
+      const new_uri = (window.location.pathname.split('/').pop() + '?t=' + compressed);
+      window.history.replaceState({}, '', new_uri);
+    } else {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }
 
   return (
@@ -100,6 +109,9 @@ function App() {
         <button title="Copy output to the clipboard"
           disabled={output === ''}
           onClick={(event) => toClipboard(output)}>Copy</button>
+        <button title="Save output as a file"
+          disabled={output === ''}
+          onClick={(event) => downloadAsHtml(output, "table.html")}>Save</button>
       </div>
     </div>
   );
