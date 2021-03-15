@@ -1,7 +1,6 @@
 extern crate clap;
 use clap::{crate_version, App, Arg};
 use std::fs;
-mod lib;
 
 fn main() {
     let matches = App::new("tablify")
@@ -30,7 +29,7 @@ fn main() {
     let raw_content = fs::read(input).unwrap();
     let template_filename = matches.value_of("TEMPLATE").unwrap();
     let template_content = fs::read_to_string(template_filename).unwrap();
-    let html = lib::tablify(
+    let html = tablify::tablify(
         &template_content,
         &raw_content,
         input,

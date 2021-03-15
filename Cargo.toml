@@ -8,17 +8,20 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-clap = "2"
 csv = "1"
-serde = { version = "1", features = ["derive"] }
+serde = "1"
 encoding_rs = "0"
 calamine = "0"
+tera = { version = "1", default-features = false }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+clap = "2"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = "0.2"
 
-[dependencies.tera]
-version = "1"
-default-features = false
-
 [profile.release]
-# Tell `rustc` to optimize for small code size.
-opt-level = "s"
+# configs for wasm
+opt-level = "z"
+# panic = "abort"
+lto = "fat"
