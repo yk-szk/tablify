@@ -12,9 +12,10 @@ pub fn render(
     template: &str,
     raw_content: &[u8],
     filename: &str,
+    has_headers: bool,
     autoescape: bool,
 ) -> Result<String, JsValue> {
-    let html = tablify(template, raw_content, filename, autoescape);
+    let html = tablify(template, raw_content, filename, has_headers, autoescape);
     html.map_err(|e| JsValue::from(e.to_string()))
 }
 
@@ -30,6 +31,7 @@ pub fn tablify(
     template: &str,
     raw_content: &[u8],
     filename: &str,
+    has_headers: bool,
     autoescape: bool,
 ) -> Result<String, Box<dyn Error>> {
     let table_data = match std::path::Path::new(filename)
@@ -40,7 +42,7 @@ pub fn tablify(
         Some("xlsx") => Ok(load_xlsx(&raw_content)?),
         _ => Err("Invalid file extension"),
     };
-    render_table(template, table_data?, autoescape).map_err(|e| e.into())
+    render_table(template, table_data?, has_headers, autoescape).map_err(|e| e.into())
 }
 
 /// Load CSV file
@@ -82,10 +84,16 @@ pub fn load_xlsx(a: &[u8]) -> Result<Vec<Vec<String>>, calamine::Error> {
 pub fn render_table(
     template_content: &str,
     rows: Vec<Vec<String>>,
+    has_headers: bool,
     autoescape: bool,
 ) -> Result<String, tera::Error> {
     let mut context = Context::new();
-    context.insert("rows", &rows);
+    if has_headers {
+        context.insert("headers", &rows[0]);
+        context.insert("rows", &rows[1..]);
+    } else {
+        context.insert("rows", &rows);
+    }
     Tera::one_off(&template_content, &context, autoescape)
 }
 
@@ -113,7 +121,7 @@ mod tests {
             .map(|row| row.join(","))
             .collect::<Vec<_>>()
             .join("\n");
-        let table = tablify(template, csv_content.as_bytes(), "fn.csv", false).unwrap();
+        let table = tablify(template, csv_content.as_bytes(), "fn.csv", false, false).unwrap();
         println!("{}", table);
         assert_eq!(table, csv_content + "\n");
     }

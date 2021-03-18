@@ -11,6 +11,15 @@ tr:nth-child(odd) {
 }
 </style>
 <table>
+{%- if headers %}
+<thead>
+    <tr>
+        {%- for e in headers %}
+        <th>{{e}}</th>
+        {%- endfor %}
+    </tr>
+</thead>
+{%- endif %}
 <tbody>
     {%- for row in rows %}
     <tr>
@@ -24,6 +33,7 @@ tr:nth-child(odd) {
 
 function App() {
   const [wasm, setWasm] = useState<ModuleType | null>(null);
+  const [hasHeaders, setHasHeaders] = useState(false);
   const [inputContent, setInputContent] = useState("");
   const [template, setTemplate] = useState(default_template);
   const [output, setOutput] = useState("");
@@ -57,10 +67,10 @@ function App() {
         if (wasm !== null) {
           const buf = reader.result as ArrayBuffer;
           try {
-            const table_template = "<table><tbody>{%- for row in rows %}<tr>{%- for e in row %}<td>{{e}}</td>{%- endfor %}</tr>{%- endfor %}</tbody></table>";
-            const rendered = wasm.render(table_template, new Uint8Array(buf), files[0].name, false);
+            const table_template = "<table>{%- if headers %}<thead><tr>{%- for e in headers %}<th>{{e}}</th>{%- endfor %}</tr></thead>{%- endif %}<tbody>{%- for row in rows %}<tr>{%- for e in row %}<td>{{e}}</td>{%- endfor %}</tr>{%- endfor %}</tbody></table>";
+            const rendered = wasm.render(table_template, new Uint8Array(buf), files[0].name, hasHeaders, false);
             setInputContent(rendered);
-            const html = wasm.render(template, new Uint8Array(buf), files[0].name, false);
+            const html = wasm.render(template, new Uint8Array(buf), files[0].name, hasHeaders, false);
             setOutput(html);
           } catch (error) {
             console.error(error);
@@ -95,6 +105,8 @@ function App() {
         <h2>Tabular data</h2>
         <p className="usage">Choose tabular file (.csv or .xlsx)</p>
         <input type="file" accept=".xlsx,.csv" onChange={(e: any) => loadFile(e.target.files)}></input>
+        <input type="checkbox" id="hasHeaders" onChange={(e: any) => setHasHeaders(e.target.checked)} checked={hasHeaders}></input>
+        <label htmlFor="hasHeaders">data has headers</label>
       </div>
       <div>
         <h2>Input contents</h2>

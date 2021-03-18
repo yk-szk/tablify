@@ -9,13 +9,18 @@ fn main() {
         .about("Load tabular data and turn it into a html file.")
         .arg(
             Arg::with_name("INPUT")
-                .help("Sets the input csv file")
+                .help("Sets the input csv/xlsx file")
                 .required(true),
         )
         .arg(
             Arg::with_name("TEMPLATE")
                 .help("Sets the template file")
                 .required(true),
+        )
+        .arg(
+            Arg::with_name("headers")
+                .help("Input data has headers")
+                .long("headers"),
         )
         .arg(
             Arg::with_name("autoescape")
@@ -33,6 +38,7 @@ fn main() {
         &template_content,
         &raw_content,
         input,
+        matches.is_present("headers"),
         matches.is_present("autoescape"),
     )
     .unwrap();
