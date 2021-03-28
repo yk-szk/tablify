@@ -6,6 +6,9 @@
 
 h2 {
   border-bottom: solid 2px lightgray;
+  border-top: solid 2px lightcyan;
+  background: #f0f0f0;
+  padding: .5em;
 }
 
 div {
@@ -45,4 +48,38 @@ p.error {
   padding: 1em;
   background: lavenderblush;
   border: solid 2px pink;
+}
+
+.tooltip {
+  display: inline-block;
+  position: relative;
+}
+
+.info::before {
+  content: "ⓘ";
+}
+
+.tooltip::after {
+    position: absolute;
+    visibility: hidden;
+}
+
+.tooltip::after {
+  font-size: 1rem;
+  background: #5f6368;
+  border-radius: .5em;
+  color: #fff;
+  content: attr(data-tooltip);
+  left: calc(100% + .5em);
+  padding: .5em 1em;
+  top: 0%;
+  white-space: nowrap;
+}
+
+.tooltip:hover {
+  cursor: help;
+}
+
+.tooltip:hover::after {
+  visibility: visible;
 }

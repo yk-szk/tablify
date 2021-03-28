@@ -99,11 +99,9 @@ function App() {
         <h1>Tablify</h1>
       </header>
       <div>
-        <h2>Template</h2>
-        <p className="usage">Set Jinja2/Django template</p>
+        <h2>Template <span className="info tooltip" data-tooltip="Set Jinja2/Django template"></span></h2>
         <textarea className="code" rows={5} value={template} onChange={onTemplateChange} name="template"></textarea >
-        <h2>Tabular data</h2>
-        <p className="usage">Choose tabular file (.csv or .xlsx)</p>
+        <h2>Tabular data <span className="info tooltip" data-tooltip="Choose tabular file (.csv or .xlsx)"></span></h2>
         <input type="file" accept=".xlsx,.csv" onChange={(e: any) => loadFile(e.target.files)}></input>
         <input type="checkbox" id="hasHeaders" onChange={(e: any) => setHasHeaders(e.target.checked)} checked={hasHeaders}></input>
         <label htmlFor="hasHeaders">data has headers</label>
