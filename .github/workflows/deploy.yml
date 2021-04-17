@@ -18,6 +18,8 @@ jobs:
         profile: minimal
         toolchain: stable
         override: true
+    - name: Modify Cargo.toml
+      run: sed -i "s/simple_excel_writer/#simple_excel_writer/" Cargo.toml
     - name: Install wasm-pack
       run: cargo install wasm-pack
     - name: Run wasm-pack
