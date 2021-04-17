@@ -2,7 +2,7 @@ extern crate clap;
 use clap::{crate_version, App, Arg};
 use std::fs;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let matches = App::new("tablify")
         .version(crate_version!())
         .author("Yuki Suzuki <y-suzuki@radiol.med.osaka-u.ac.jp>")
@@ -31,18 +31,17 @@ fn main() {
         .get_matches();
 
     let input = matches.value_of("INPUT").unwrap();
-    let raw_content = fs::read(input).unwrap();
+    let raw_content = fs::read(input)?;
     let template_filename = matches.value_of("TEMPLATE").unwrap();
-    let template_content = fs::read_to_string(template_filename).unwrap();
+    let template_content = fs::read_to_string(template_filename)?;
     let html = tablify::tablify(
         &template_content,
         &raw_content,
         input,
         matches.is_present("headers"),
         matches.is_present("autoescape"),
-    )
-    .unwrap();
+    )?;
     println!("{}", html);
 
-    std::process::exit(0)
+    Ok(())
 }
