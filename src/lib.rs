@@ -66,9 +66,7 @@ pub fn load_xlsx(a: &[u8]) -> Result<Vec<Vec<String>>, calamine::Error> {
     let mut workbook = Xlsx::new(buf)?;
     let mut rows: Vec<Vec<String>> = Vec::new();
     let sheet_name = workbook.sheet_names()[0].to_owned();
-    let range = workbook
-        .worksheet_range(&sheet_name)
-        .ok_or(calamine::Error::Msg("Cannot find a sheet."))??;
+    let range = workbook.worksheet_range(&sheet_name)?;
     let mut iter = RangeDeserializerBuilder::new()
         .has_headers(false)
         .from_range(&range)?;
