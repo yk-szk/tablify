@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import init, {render} from 'tablify';
+import init, { render } from 'tablify';
 import parse from 'html-react-parser';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import './App.css';
@@ -103,8 +103,14 @@ function App() {
         <h2>Template <span className="info tooltip" data-tooltip="Set Jinja2/Django template"></span></h2>
         <textarea className="code" rows={10} value={template} onChange={onTemplateChange} name="template"></textarea >
         <h2>Tabular data <span className="info tooltip" data-tooltip="Choose tabular file (.csv or .xlsx)"></span></h2>
-        <input type="file" accept=".xlsx,.csv" onChange={(e: any) => loadFile(e.target.files)}></input>
-        <input type="checkbox" id="hasHeaders" onChange={(e: any) => setHasHeaders(e.target.checked)} checked={hasHeaders}></input>
+        <input type="file" accept=".xlsx,.csv" onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          const input = e.target as HTMLInputElement;
+          if (input.files === null) {
+            return;
+          }
+          loadFile(input.files);
+        }}></input>
+        <input type="checkbox" id="hasHeaders" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHasHeaders(e.target.checked)} checked={hasHeaders}></input>
         <label htmlFor="hasHeaders">data has headers</label>
       </div>
       <div>
