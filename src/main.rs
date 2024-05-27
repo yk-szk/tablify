@@ -1,3 +1,4 @@
+use anyhow::Result;
 use clap::Parser;
 use std::fs;
 
@@ -15,11 +16,11 @@ struct Args {
     header: bool,
 
     /// Enable autoescaping
-    #[clap(short = 'a', long)]
-    autoescape: bool,
+    #[clap(short = 'e', long)]
+    escape: bool,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<()> {
     let args = Args::parse();
 
     let raw_content = fs::read(&args.input)?;
@@ -29,7 +30,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         &raw_content,
         args.input.as_str(),
         args.header,
-        args.autoescape,
+        args.escape,
     )?;
     println!("{}", html);
 

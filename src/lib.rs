@@ -1,5 +1,5 @@
+use anyhow::{bail, Result};
 use calamine::{RangeDeserializerBuilder, Reader, Xlsx};
-use std::error::Error;
 use std::io::{BufReader, Cursor};
 use tera::{Context, Tera};
 #[cfg(target_arch = "wasm32")]
@@ -32,16 +32,16 @@ pub fn tablify(
     filename: &str,
     has_headers: bool,
     autoescape: bool,
-) -> Result<String, Box<dyn Error>> {
+) -> Result<String> {
     let table_data = match std::path::Path::new(filename)
         .extension()
         .and_then(std::ffi::OsStr::to_str)
     {
-        Some("csv") => Ok(load_csv(raw_content)?),
-        Some("xlsx") => Ok(load_xlsx(raw_content)?),
-        _ => Err("Invalid file extension"),
+        Some("csv") => load_csv(raw_content)?,
+        Some("xlsx") => load_xlsx(raw_content)?,
+        _ => bail!("Invalid file extension"),
     };
-    render_table(template, table_data?, has_headers, autoescape).map_err(|e| e.into())
+    render_table(template, table_data, has_headers, autoescape).map_err(|e| e.into())
 }
 
 /// Load CSV file
