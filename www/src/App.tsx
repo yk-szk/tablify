@@ -32,6 +32,18 @@ tr:nth-child(odd) {
 </table>`;
 
 
+function InputData({ tableHtml }: { tableHtml: string }) {
+  if (tableHtml !== "") {
+    if (tableHtml.length < 1024) {
+      return <>{parse(tableHtml)}</>;
+    } else {
+      return <details><summary>Show table</summary>{parse(tableHtml)}</details>;
+    }
+  } else {
+    return <></>;
+  }
+}
+
 function App() {
   const [wasm, setWasm] = useState<boolean>(false);
   const [hasHeaders, setHasHeaders] = useState(false);
@@ -97,35 +109,45 @@ function App() {
   return (
     <div className="App">
       <header>
-        <h1>Tablify</h1>
+        <h1><a id="title" href="/">Tablify</a></h1>
       </header>
       <div>
         <h2>Template <span className="info tooltip" data-tooltip="Set Jinja2/Django template"></span></h2>
         <textarea className="code" rows={10} value={template} onChange={onTemplateChange} name="template"></textarea >
         <h2>Tabular data <span className="info tooltip" data-tooltip="Choose tabular file (.csv or .xlsx)"></span></h2>
-        <input type="file" accept=".xlsx,.csv" onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          const input = e.target as HTMLInputElement;
-          if (input.files === null) {
-            return;
+        <form>
+          <input type="file" id="inputFile" accept=".xlsx,.csv" onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            const input = e.target as HTMLInputElement;
+            if (input.files === null) {
+              return;
+            }
+            loadFile(input.files);
+          }}></input>
+          <input type="checkbox" id="hasHeaders" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHasHeaders(e.target.checked)} checked={hasHeaders}></input>
+          <label htmlFor="hasHeaders"> check if the data has a header</label>
+          <input type="reset" value="Clear" title="Clear input and output" onClick={() => {
+            setInputContent("");
+            setOutput("");
           }
-          loadFile(input.files);
-        }}></input>
-        <input type="checkbox" id="hasHeaders" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHasHeaders(e.target.checked)} checked={hasHeaders}></input>
-        <label htmlFor="hasHeaders">data has headers</label>
+          }></input>
+        </form>
       </div>
       <div>
         <h2>Input contents</h2>
-        {parse(inputContent)}
+        <InputData tableHtml={inputContent} />
       </div>
       <div>
         <h2>Output</h2>
         <textarea className="code" rows={5} id="output" value={output} readOnly></textarea>
-        <button title="Copy output to the clipboard"
-          disabled={output === ''}
-          onClick={() => toClipboard(output)}>Copy</button>
-        <button title="Save output as a file"
-          disabled={output === ''}
-          onClick={() => downloadAsHtml(output, "table.html")}>Save</button>
+        <iframe srcDoc={output}></iframe>
+        <div id="buttons">
+          <button title="Copy output to the clipboard"
+            disabled={output === ''}
+            onClick={() => toClipboard(output)}>Copy</button>
+          <button title="Save output as a file"
+            disabled={output === ''}
+            onClick={() => downloadAsHtml(output, "table.html")}>Save</button>
+        </div>
       </div>
     </div>
   );

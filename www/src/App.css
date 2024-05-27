@@ -83,3 +83,22 @@ p.error {
 .tooltip:hover::after {
   visibility: visible;
 }
+
+form input {
+  margin: 0.5em;
+}
+
+div#buttons button {
+  margin: 0.5em;
+}
+
+/* negate anchor styling */
+a#title {
+  text-decoration: none;
+  color: black;
+}
+
+iframe {
+  width: 100%;
+  height: 10em;
+}
