@@ -43,7 +43,7 @@ fn test_load_xlsx() -> Result<()> {
     let mut buffer = vec![0; metadata.len() as usize];
     reader.read_exact(&mut buffer)?;
     let loaded_rows = tablify::load_xlsx(&buffer)?;
-    assert_eq!(rows, loaded_rows);
+    assert_eq!(rows, loaded_rows[0]);
     Ok(())
 }
 

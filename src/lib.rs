@@ -1,5 +1,6 @@
 use anyhow::{bail, Result};
 use calamine::{RangeDeserializerBuilder, Reader, Xlsx};
+use log::info;
 use std::io::{BufReader, Cursor};
 use tera::{Context, Tera};
 #[cfg(target_arch = "wasm32")]
@@ -17,6 +18,9 @@ pub fn render(
     let html = tablify(template, raw_content, filename, has_headers, autoescape);
     html.map_err(|e| JsValue::from(e.to_string()))
 }
+
+pub type Sheet = Vec<Vec<String>>;
+pub type Sheets = Vec<Sheet>;
 
 /// Load tabular data and render html using the contents and the template
 ///
@@ -37,15 +41,15 @@ pub fn tablify(
         .extension()
         .and_then(std::ffi::OsStr::to_str)
     {
-        Some("csv") => load_csv(raw_content)?,
+        Some("csv") => vec![load_csv(raw_content)?],
         Some("xlsx") => load_xlsx(raw_content)?,
         _ => bail!("Invalid file extension"),
     };
-    render_table(template, table_data, has_headers, autoescape).map_err(|e| e.into())
+    render_tables(template, table_data, has_headers, autoescape).map_err(Into::into)
 }
 
 /// Load CSV file
-pub fn load_csv(a: &[u8]) -> Result<Vec<Vec<String>>, csv::Error> {
+pub fn load_csv(a: &[u8]) -> Result<Sheet, csv::Error> {
     let (csv_content, _, _) = encoding_rs::SHIFT_JIS.decode(a);
     let csv_content = csv_content.into_owned();
     let mut rdr = csv::ReaderBuilder::new()
@@ -60,21 +64,25 @@ pub fn load_csv(a: &[u8]) -> Result<Vec<Vec<String>>, csv::Error> {
 }
 
 /// Load XLSX file
-pub fn load_xlsx(a: &[u8]) -> Result<Vec<Vec<String>>, calamine::Error> {
+pub fn load_xlsx(a: &[u8]) -> Result<Sheets, calamine::Error> {
     let cursor = Cursor::new(a);
     let buf = BufReader::new(cursor);
     let mut workbook = Xlsx::new(buf)?;
-    let mut rows: Vec<Vec<String>> = Vec::new();
-    let sheet_name = workbook.sheet_names()[0].to_owned();
-    let range = workbook.worksheet_range(&sheet_name)?;
-    let iter = RangeDeserializerBuilder::new()
-        .has_headers(false)
-        .from_range(&range)?;
-    for result in iter {
-        let row: Vec<String> = result?;
-        rows.push(row);
+    let mut sheets = Sheets::new();
+    for sheet_name in workbook.sheet_names() {
+        info!("Reading sheet: {}", sheet_name);
+        let range = workbook.worksheet_range(&sheet_name)?;
+        let mut rows: Vec<Vec<String>> = Vec::new();
+        let iter = RangeDeserializerBuilder::new()
+            .has_headers(false)
+            .from_range(&range)?;
+        for result in iter {
+            let row: Vec<String> = result?;
+            rows.push(row);
+        }
+        sheets.push(rows);
     }
-    Ok(rows)
+    Ok(sheets)
 }
 
 /// Render rows using the given template.
@@ -92,6 +100,35 @@ pub fn render_table(
         context.insert("rows", &rows);
     }
     Tera::one_off(template_content, &context, autoescape)
+}
+
+pub fn render_tables(
+    template_content: &str,
+    sheets: Sheets,
+    has_headers: bool,
+    autoescape: bool,
+) -> Result<String, tera::Error> {
+    let mut tera = Tera::default();
+    tera.add_raw_template("template.html", template_content)?;
+    if autoescape {
+        tera.autoescape_on(vec!["html"]);
+    } else {
+        tera.autoescape_on(vec![]);
+    }
+    let htmls: Result<Vec<String>, _> = sheets
+        .into_iter()
+        .map(|sheet| {
+            let mut context = Context::new();
+            if has_headers {
+                context.insert("headers", &sheet[0]);
+                context.insert("rows", &sheet[1..]);
+            } else {
+                context.insert("rows", &sheet);
+            }
+            tera.render("template.html", &context)
+        })
+        .collect();
+    Ok(htmls?.join("\n"))
 }
 
 #[cfg(test)]
