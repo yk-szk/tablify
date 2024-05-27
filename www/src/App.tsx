@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import ReactHtmlParser from 'react-html-parser';
+import init, {render} from 'tablify';
+import parse from 'html-react-parser';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import './App.css';
 import { toClipboard, downloadAsHtml } from './Utils';
 
-type ModuleType = typeof import('tablify');
 let default_template = `<style>
 tr:nth-child(odd) {
     background: #f7f7ff;
@@ -31,8 +31,9 @@ tr:nth-child(odd) {
 </tbody>
 </table>`;
 
+
 function App() {
-  const [wasm, setWasm] = useState<ModuleType | null>(null);
+  const [wasm, setWasm] = useState<boolean>(false);
   const [hasHeaders, setHasHeaders] = useState(false);
   const [inputContent, setInputContent] = useState("");
   const [template, setTemplate] = useState(default_template);
@@ -50,12 +51,12 @@ function App() {
   }, [])
   useEffect(() => {
     try {
-      import('tablify').then((module: ModuleType) => {
-        setWasm(module);
+      init().then(() => {
+        setWasm(true);
         console.log('wasm has been loaded successfully.')
       });
     } catch (err) {
-      console.error(`Unexpected error in loading wasm. [Message: ${err.message}]`);
+      console.error(`Unexpected error in loading wasm. [Message: ${err}]`);
     }
   }, [])
   function loadFile(files: FileList) {
@@ -64,13 +65,13 @@ function App() {
       const reader = new FileReader();
       reader.readAsArrayBuffer(files[0]);
       reader.onload = function () {
-        if (wasm !== null) {
+        if (wasm) {
           const buf = reader.result as ArrayBuffer;
           try {
             const table_template = "<table>{%- if headers %}<thead><tr>{%- for e in headers %}<th>{{e}}</th>{%- endfor %}</tr></thead>{%- endif %}<tbody>{%- for row in rows %}<tr>{%- for e in row %}<td>{{e}}</td>{%- endfor %}</tr>{%- endfor %}</tbody></table>";
-            const rendered = wasm.render(table_template, new Uint8Array(buf), files[0].name, hasHeaders, false);
+            const rendered = render(table_template, new Uint8Array(buf), files[0].name, hasHeaders, false);
             setInputContent(rendered);
-            const html = wasm.render(template, new Uint8Array(buf), files[0].name, hasHeaders, false);
+            const html = render(template, new Uint8Array(buf), files[0].name, hasHeaders, false);
             setOutput(html);
           } catch (error) {
             console.error(error);
@@ -100,7 +101,7 @@ function App() {
       </header>
       <div>
         <h2>Template <span className="info tooltip" data-tooltip="Set Jinja2/Django template"></span></h2>
-        <textarea className="code" rows={5} value={template} onChange={onTemplateChange} name="template"></textarea >
+        <textarea className="code" rows={10} value={template} onChange={onTemplateChange} name="template"></textarea >
         <h2>Tabular data <span className="info tooltip" data-tooltip="Choose tabular file (.csv or .xlsx)"></span></h2>
         <input type="file" accept=".xlsx,.csv" onChange={(e: any) => loadFile(e.target.files)}></input>
         <input type="checkbox" id="hasHeaders" onChange={(e: any) => setHasHeaders(e.target.checked)} checked={hasHeaders}></input>
@@ -108,20 +109,20 @@ function App() {
       </div>
       <div>
         <h2>Input contents</h2>
-        {ReactHtmlParser(inputContent)}
+        {parse(inputContent)}
       </div>
       <div>
         <h2>Output</h2>
         <textarea className="code" rows={5} id="output" value={output} readOnly></textarea>
         <button title="Copy output to the clipboard"
           disabled={output === ''}
-          onClick={(event) => toClipboard(output)}>Copy</button>
+          onClick={() => toClipboard(output)}>Copy</button>
         <button title="Save output as a file"
           disabled={output === ''}
-          onClick={(event) => downloadAsHtml(output, "table.html")}>Save</button>
+          onClick={() => downloadAsHtml(output, "table.html")}>Save</button>
       </div>
     </div>
   );
 }
 
-export default App;
+export default App

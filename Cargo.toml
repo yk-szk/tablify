@@ -34,4 +34,6 @@ wasm-bindgen = "0.2.92"
 # configs for wasm
 opt-level = "z"
 # panic = "abort"
-lto = "fat"
+lto = true
+codegen-units = 1
+strip = true
