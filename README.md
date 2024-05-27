@@ -1,25 +1,29 @@
 # tablify
 Turn a tabular data into a table element.
 
+- web interface: https://ykszk.github.io/tablify/
+- command line interface: https://github.com/ykszk/tablify/releases
+
+# Development
+
 ## ARCHITECTURE
 - Rust: Core functionality -> wasm + CLI
 - React: Web app
 
-## Development
 
-### Setup
+## Setup
+Install rust and nodejs.
+
+## CLI
 ```sh
-cargo install wasm-pack
+cargo test
 ```
 
-### Rust
+## Web interface
 ```sh
-cargo build
-```
-
-### React
-```sh
-wasm-pack build
 cd www
-yarn build
+cargo install wasm-pack
+npm run build-wasm
+npm install
+npm run dev
 ```
