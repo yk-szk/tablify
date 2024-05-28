@@ -16,5 +16,8 @@
 export function toClipboard(text: string) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text);
+    console.log("Copied to the clipboard")
+  } else {
+    console.log("Clipboard API not available")
   }
 }

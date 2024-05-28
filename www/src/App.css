@@ -59,6 +59,10 @@ p.error {
   content: "ⓘ";
 }
 
+.protip::before {
+  content: "💡";
+}
+
 .tooltip::after {
     position: absolute;
     visibility: hidden;
@@ -84,11 +88,17 @@ p.error {
   visibility: visible;
 }
 
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
 form input {
   margin: 0.5em;
 }
 
-div#buttons button {
+div#buttons > * {
   margin: 0.5em;
 }
 
