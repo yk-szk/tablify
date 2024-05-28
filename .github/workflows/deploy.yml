@@ -2,7 +2,12 @@ name: Deploy to Github Pages
 
 on:
   push:
+    tags:
+      - 'v*'
     branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
   build:
@@ -10,31 +15,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        override: true
-    - name: Modify Cargo.toml
-      run: sed -i "s/simple_excel_writer/#simple_excel_writer/" Cargo.toml
+    - uses: actions/checkout@v4
     - name: Install wasm-pack
       run: cargo install wasm-pack
-    - name: Run wasm-pack
-      run: wasm-pack build
       
     - name: Setup Node.js
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
-        node-version: '12.x'
-    - name: Install dependencies
-      run: cd ./www && yarn
-    - name: Build react
-      run: cd ./www && yarn build
+        node-version: '20.x'
+    - name: Build
+      working-directory: ./www
+      run: npm run build-wasm && npm install && npm run build
     - name: Publish
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./www/build
+        publish_dir: ./www/dist
