@@ -1,6 +1,6 @@
 [package]
 name = "tablify"
-version = "0.2.0"
+version = "0.2.1"
 description = "Load tabular data and turn it into a html file."
 authors = ["Yuki Suzuki <y-suzuki@radiol.med.osaka-u.ac.jp>"]
 edition = "2021"

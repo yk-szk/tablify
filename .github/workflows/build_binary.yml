@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-    branches: [ main ]
 
 jobs:
   release:
@@ -17,7 +16,7 @@ jobs:
             target: x86_64-pc-windows-msvc
             bin: tablify.exe
             name: tablify-Windows-x86_64.zip
-            command: both
+            command: build
 
           - release_for: macOS-x86_64
             os: macOS-latest
